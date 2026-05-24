@@ -14,3 +14,163 @@ const resultMessage = document.getElementById('result-message');
 const restartButton = document.getElementById('restart-btn');
 const progressBar = document.getElementById('progress');
 
+
+const quizQuestions = [
+    {
+        question: "what is the capital of France?",
+        answers: [
+            {text: "London", correct: false},
+            {text: "Berlin", correct: false},
+            {text: "Paris", correct: true},
+            {text: "Madrid", correct: false},
+        ],
+    },
+    {
+        question: "Which planet is known as the Red Planet?",
+        answers: [
+            {text: "Venus", correct: false},
+            {text: "Mars", correct: true},
+            {text: "Jupiter", correct: false},
+            {text: "Neptune", correct: false},
+
+        ],
+    },
+    {
+        question: "what is your tabby cats name?",
+        answers: [
+            {text: "Scooby", correct: false},
+            {text: "Rex", correct: false},
+            {text: "Willow", correct: true},
+            {text: "Koa", correct: false},
+        ],
+    },
+    {
+        question: "How many countries are in Africa?",
+        answers: [
+            {text: "23", correct: false},
+            {text: "43", correct: false},
+            {text: "54", correct: true},
+            {text: "9", correct: false},
+        ],
+    },
+    {
+        question: "what God did the Egpytians Believe in?",
+        answers: [
+            {text: "Osiris", correct: true},
+            {text: "Jesus", correct: false},
+            {text: "Allah", correct: false},
+            {text: "Santa Clause", correct: false},
+        ],
+    },
+]
+
+// QUIZ STATE VARS
+let currentQuestionIndex = 0;
+let score = 0;
+let answersDisabled = false;
+
+totalQuestionsSpan.textContent = quizQuestions.length;
+maxScoreSpan.textContent = quizQuestions.length;
+
+// Event Listeners
+startButton.addEventListener('click', startQuiz);
+restartButton.addEventListener('click', restartQuiz);
+
+function startQuiz(){
+    // Reset Vars
+    currentQuestionIndex = 0;
+    score = 0;
+    scoreSpan.textContent = 0;
+
+    startScreen.classList.remove("active");
+    quizScreen.classList.add("active");
+
+    showQuestion();
+};
+
+function showQuestion() {
+    // reset state
+    answersDisabled = false;
+    const currentQuestion = quizQuestions[currentQuestionIndex]
+    
+    currentQuestionSpan.textContent = currentQuestionIndex + 1
+
+    const progressPercent = (currentQuestionIndex / quizQuestions.length) * 100;
+    progressBar.style.width = progressPercent + "%";
+    
+    questionText.textContent = currentQuestion.question
+
+    //Todo: explain this in a second
+    answersContainer.innerHTML = "";
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button")
+        button.textContent = answer.text;
+        button.classList.add("answer-btn")
+
+        // What is a dataset ? it's a property of the button element that allows you to store custom data
+        button.dataset.correct = answer.correct;
+
+        button.addEventListener('click', selectAnswer)
+        answersContainer.appendChild(button);
+    })
+}
+
+function selectAnswer(event) {
+
+    if(answersDisabled) return
+
+    answersDisabled = true;
+    const selectedButton = event.target;
+    const isCorrect = selectedButton.dataset.correct === "true";
+
+    Array.from(answersContainer.children).forEach(button => {
+        if(button.dataset.correct === "true") {
+            button.classList.add("correct")
+        } else {
+            button.classList.add("incorrect");
+        }
+    });
+
+    if(isCorrect) {
+        score++;
+        scoreSpan.textContent = score;
+    }
+
+    setTimeout(() => {
+        currentQuestionIndex++;
+
+        // Check if there are more questions or if the quiz is over
+        if(currentQuestionIndex < quizQuestions.length) {
+            showQuestion()
+        } else {
+            showResults()
+        }
+    }, 1000)
+};
+
+function showResults() {
+    quizScreen.classList.remove("active");
+    resultScreen.classList.add("active");
+
+    finalScoreSpan.textContent = score;
+
+    let percentage = (score/quizQuestions.length) * 100;
+
+    if(percentage === 100) {
+        resultMessage.textContent = "Perfect! You're a genius! ";
+    } else if(percentage >= 80) {
+        resultMessage.textContent = "Great Job! you know your stuff";
+    } else if(percentage >= 60) {
+        resultMessage.textContent = "Good Effort! Keep learning!";
+    } else if(percentage >= 40) {
+        resultMessage.textContent = "Keep studying you'll get better! ";
+    }
+};
+
+function restartQuiz(){
+    resultScreen.classList.remove("active");
+
+    startQuiz();
+};
+

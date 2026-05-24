@@ -152,7 +152,7 @@ button {
 
 button:hover {
   background-color: #b45b28;
-  transition: width 0.3e ease;
+  transition: width 0.3s ease;
 }
 
 /* RESPONSIVE DESIGN */
